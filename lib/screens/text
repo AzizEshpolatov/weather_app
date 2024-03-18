@@ -1,0 +1,134 @@
+
+
+ FutureBuilder<MyResponse>(
+              future: weatherRepository.getSimpleWeatherInfo("Tashkent"),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(snapshot.error.toString()),
+                  );
+                }
+                if (snapshot.hasData) {
+                  WeatherMainModel weatherMainModel =
+                  (snapshot.data as MyResponse).data as WeatherMainModel;
+                  return Column(
+                    children: [
+                      Text(
+                        weatherMainModel.name,
+                      ),
+                      Text(
+                        weatherMainModel.dateTime.getParsedDate().toString(),
+                      ),
+                      Image.network(
+                        weatherMainModel.weatherModel[0].icon
+                            .getWeatherIconUrl(),
+                      ),
+                      Text(
+                        "${(weatherMainModel.mainInMain.temp - 273.15).toStringAsFixed(2)} C",
+
+                      ),
+                    ],
+                  );
+                }
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ),
+
+
+
+
+
+// future 2
+FutureBuilder<MyResponse>(
+              future: weatherRepository.getComplexWeatherInfo(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(snapshot.error.toString()),
+                  );
+                }
+                if (snapshot.hasData) {
+                  OneCallData oneCallData =
+                  (snapshot.data as MyResponse).data as OneCallData;
+                  return Column(
+                    children: [
+                      const Row(
+                        children: [
+                          Text("Today"),
+                          Text("Tomorrow"),
+                        ],
+                      ),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            ...List.generate(oneCallData.hourly.length,
+                                    (index) {
+                                  var hourData = oneCallData.hourly[index];
+                                    return Column(
+                                    children: [
+                                      Text(hourData.dt.getParsedHour()),
+                                      Image.network(
+                                        hourData.weather[0].icon
+                                            .getWeatherIconUrl(),
+                                      ),
+                                      Text(
+                                        "${hourData.temp} C",
+                                      ),
+                                    ],
+                                  );
+                                })
+                          ],
+                        ),
+                      ),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            ...List.generate(oneCallData.daily.length, (index) {
+                              var daily = oneCallData.daily[index];
+                              return Row(
+                                children: [
+                                  Text(daily.dt.getParsedDateDay()),
+                                  Image.network(
+                                    daily.weather[0].icon.getWeatherIconUrl(),
+                                  ),
+                                  Text(
+                                    "${daily.dailyTemp.day} C",
+                                  ),
+                                ],
+                              );
+                            })
+                          ],
+                        ),
+                      ),
+                      Text(
+                        oneCallData.timezone,
+                      ),
+                    ],
+                  );
+                }
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://api.openweathermap.org/data/2.5/onecall?lat=41.2646&lon=69.2163&exclude=current.minutely&appid=649ff9f2558d2c45135158b30bc262d8
+
+
